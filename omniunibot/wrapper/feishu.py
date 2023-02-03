@@ -13,15 +13,14 @@ class FeishuBot(BaseBot):
     https://open.feishu.cn/document/ukTMukTMukTM/ucTM5YjL3ETO24yNxkjN
     """
 
-    def __init__(self, token: str, secret: str):
+    def __init__(self, webhook: str, secret: str):
         """
         Args:
-            webhook_id (str): GUID, like 6866e049-9d80-40da-9618-b555a2285f3x
-            secret (str): sth. like dwTqF7UgZIPJzO0GZjHfex
+            webhook (str): webhook from feishu
+            secret (str): sth. like dwTqF7UgZIPJzO0GZjHxxx
         """
 
-        webhook_baseurl = "https://open.feishu.cn/open-apis/bot/v2/hook/"
-        self.webhook = webhook_baseurl + token
+        self.webhook = webhook
         self.secret = secret
 
     def _sign(self):
@@ -47,7 +46,7 @@ class FeishuBot(BaseBot):
         return response['code']
 
     def _onSuccessResponse(self, response=None) -> int:
-        logger.info("Success.")
+        logger.info("Successully sent message to Feishu.")
         return 0
 
     def generatePayload(self, text: str):
@@ -63,10 +62,14 @@ class FeishuBot(BaseBot):
         return payload
 
     def sendQuickMessage(self, msg: str):
-        r = requests.post(self.webhook,
-                          json=self.generatePayload(msg))
-        response = r.json()
-        if "code" in response.keys():
-            self._onErrorResponse(response)
-        else:
-            self._onSuccessResponse()
+        logger.info(f"Get text message: {msg}")
+        try:
+            r = requests.post(self.webhook,
+                              json=self.generatePayload(msg))
+            response = r.json()
+            if "code" in response.keys():
+                self._onErrorResponse(response)
+            else:
+                self._onSuccessResponse()
+        except Exception as e:
+            logger.error(f"Caught Exception {str(e)}")

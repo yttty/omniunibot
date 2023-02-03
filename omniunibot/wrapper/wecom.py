@@ -8,21 +8,17 @@ from loguru import logger
 from .base import BaseBot
 
 
-class WXWorkBot(BaseBot):
+class WeComBot(BaseBot):
     """
     https://developer.work.weixin.qq.com/document/path/91770
     """
 
-    def __init__(self, token: str, **kwargs):
+    def __init__(self, webhook: str, **kwargs):
         """
         Args:
-            token (str): the key from wxwork
+            webhook (str): the webhook from wxwork
         """
-        self.key = token
-
-    def _getUrlForWXWork(self):
-        baseurl = 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?'
-        return baseurl + "&key=" + self.key
+        self.webhook = webhook
 
     def _onErrorResponse(self, response) -> int:
         logger.error(
@@ -31,7 +27,7 @@ class WXWorkBot(BaseBot):
         return response['errcode']
 
     def _onSuccessResponse(self, response=None) -> int:
-        logger.info("Success.")
+        logger.info("Successully sent message to WeCom.")
         return 0
 
     def generatePayload(self, msgtype: str, **kwargs):
@@ -61,22 +57,30 @@ class WXWorkBot(BaseBot):
         return payload
 
     def sendMessage(self, payload: dict):
-        r = requests.post(self._getUrlForWXWork(), json=payload)
-        response = r.json()
-        if response['errcode'] == 0:
-            self._onSuccessResponse()
-        else:
-            self._onErrorResponse(response)
+        logger.info(f"Get message: {payload}")
+        try:
+            r = requests.post(self.webhook, json=payload)
+            response = r.json()
+            if response['errcode'] == 0:
+                self._onSuccessResponse()
+            else:
+                self._onErrorResponse(response)
+        except Exception as e:
+            logger.error(f"Caught Exception {str(e)}")
 
     def sendQuickMessage(self, text: str):
-        r = requests.post(self._getUrlForWXWork(),
-                          json=self.generatePayload(msgtype="text",
-                                                    content=text))
-        response = r.json()
-        if response['errcode'] == 0:
-            self._onSuccessResponse()
-        else:
-            self._onErrorResponse(response)
+        logger.info(f"Get text Message: {text}")
+        try:
+            r = requests.post(self.webhook,
+                              json=self.generatePayload(msgtype="text",
+                                                        content=text))
+            response = r.json()
+            if response['errcode'] == 0:
+                self._onSuccessResponse()
+            else:
+                self._onErrorResponse(response)
+        except Exception as e:
+            logger.error(f"Caught Exception {str(e)}")
 
     def sendImage(self, imgPath: str):
         raise NotImplementedError

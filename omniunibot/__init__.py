@@ -1,3 +1,6 @@
-from .clients.dingtalk import DingTalkBot
-from .clients.wxwork import WXWorkBot
-from .clients.feishu import FeishuBot
+from .wrapper.dingtalk import DingTalkBot
+from .wrapper.wecom import WeComBot
+from .wrapper.feishu import FeishuBot
+
+from .server import OmniUniBotServer
+from .client import OmniUniBotClient

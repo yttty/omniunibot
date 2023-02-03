@@ -19,12 +19,11 @@ class DingTalkBot(BaseBot):
     https://open.dingtalk.com/document/robots/custom-robot-access
     """
 
-    def __init__(self, token, secret):
-        self.token = token
+    def __init__(self, webhook, secret):
+        self.webhook = webhook
         self.secret = secret
 
     def _getSignedUrlForDingDing(self):
-        baseurl = 'https://oapi.dingtalk.com/robot/send?'
         timestamp = str(round(time.time() * 1000))
         secret_enc = self.secret.encode('utf-8')
         string_to_sign = '{}\n{}'.format(timestamp, self.secret)
@@ -33,7 +32,7 @@ class DingTalkBot(BaseBot):
                              string_to_sign_enc,
                              digestmod=hashlib.sha256).digest()
         sign = urllib.parse.quote_plus(base64.b64encode(hmac_code))
-        signed_url = baseurl + "&access_token=" + self.token + "&timestamp=" + str(
+        signed_url = self.webhook + "&timestamp=" + str(
             timestamp) + "&sign=" + sign
         return signed_url
 
@@ -44,7 +43,7 @@ class DingTalkBot(BaseBot):
         return response['errcode']
 
     def _onSuccessResponse(self, response=None) -> int:
-        logger.info("Success.")
+        logger.info("Successully sent message to DingTalk.")
         return 0
 
     def generatePayload(self,
@@ -65,19 +64,27 @@ class DingTalkBot(BaseBot):
         return payload
 
     def sendMessage(self, payload: dict):
-        r = requests.post(self._getSignedUrlForDingDing(), json=payload)
-        response = r.json()
-        if response['errcode'] == 0:
-            self._onSuccessResponse()
-        else:
-            self._onErrorResponse(response)
+        logger.info(f"Get message: {payload}")
+        try:
+            r = requests.post(self._getSignedUrlForDingDing(),
+                              json=payload)
+            response = r.json()
+            if response['errcode'] == 0:
+                self._onSuccessResponse()
+            else:
+                self._onErrorResponse(response)
+        except Exception as e:
+            logger.error(f"Caught Exception {str(e)}")
 
     def sendQuickMessage(self, msg: str):
-        r = requests.post(self._getSignedUrlForDingDing(),
-                          json=self.generatePayload(msg))
-        response = r.json()
-        if response['errcode'] == 0:
-            self._onSuccessResponse()
-        else:
-            self._onErrorResponse(response)
-
+        logger.info(f"Get text message: {msg}")
+        try:
+            r = requests.post(self._getSignedUrlForDingDing(),
+                              json=self.generatePayload(msg))
+            response = r.json()
+            if response['errcode'] == 0:
+                self._onSuccessResponse()
+            else:
+                self._onErrorResponse(response)
+        except Exception as e:
+            logger.error(f"Caught Exception {str(e)}")
