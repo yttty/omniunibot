@@ -20,7 +20,7 @@ class Tester:
         self.server = OmniUniBotServer(config, self.channel)
 
     def run(self):
-        self.server.bulkSend('Test Passed')
+        self.server._bulkSend('Test Passed')
 
 
 def parse_args():

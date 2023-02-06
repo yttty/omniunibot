@@ -1,15 +1,32 @@
 from setuptools import setup, find_packages
-from os import path
-this_directory = path.abspath(path.dirname(__file__))
-long_description = None
-with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
-    long_description = f.read()
+import os
+
+with open(
+    os.path.join(os.path.dirname(__file__), "requirements/common.txt"), "r"
+) as fh:
+    requirements = fh.readlines()
+
+about = {}
+
+with open("README.md", "r") as fh:
+    about["long_description"] = fh.read()
+
+VERSION = None
+
+root = os.path.abspath(os.path.dirname(__file__))
+if not VERSION:
+    with open(os.path.join(root, "omniunibot", "__version__.py")) as f:
+        exec(f.read(), about)
+else:
+    about["__version__"] = VERSION
+
 print(find_packages())
+
 setup(
     name='omniunibot',
-    version='0.0.2',
+    version=about['__version__'],
     description='A universal multiplatform message bot',
-    long_description=long_description,  # shown in pypi homepage
+    long_description=about['long_description'],
     long_description_content_type='text/markdown',
     author='yttty',
     author_email='yttty@noreply.com',
@@ -17,11 +34,9 @@ setup(
     zip_safe=False,
     python_requires='>=3.8',
     install_requires=[
-        'requests>=2.26.0',
-        'loguru>=0.6.0',
-        'pyzmq>=24.0.0'
+        req for req in requirements
     ],
-    packages=find_packages(),
+    packages=find_packages(exclude=("tests",)),
     classifiers=[
         'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: MIT License',

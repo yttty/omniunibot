@@ -3,6 +3,7 @@ import json
 from loguru import logger
 from zmq import Context
 from time import sleep
+from typing import Optional
 
 
 class OmniUniBotClient:
@@ -22,13 +23,31 @@ class OmniUniBotClient:
         self._socket = self._ctx.socket(zmq.PUB)
         self._socket.bind(self._addr)
         logger.debug(f"Client bind to {self._addr}")
-        # wait for connection is ready
+        # wait for connection to be ready
         sleep(1)
 
-    def send(self, title, msg):
-        info = json.dumps({
-            "title": title,
+    def send(self,
+             channel: str,
+             msg: str,
+             title: Optional[str] = None,
+             msgType: str = 'text',
+             **kwargs):
+        """Send message to OmniUniBotServer
+
+        Args:
+            channel (str): The channel to send message. If the channel name is not
+                configured, the message will be disposed.
+            msg (str): The message content.
+            title (Optional[str], optional): Title of the message. Defaults to None.
+            msgType (str, optional): Type of the message. Defaults to 'text'.
+        """
+        payload = {
+            "channel": channel,
+            "msgType": msgType,
             "msg": msg
-        }).encode('utf-8')
+        }
+        if title:
+            payload["title"] = title
+        info = json.dumps(payload).encode('utf-8')
         self._socket.send_multipart([self._topic, info])
         logger.debug(f"Client sent msg {info}")

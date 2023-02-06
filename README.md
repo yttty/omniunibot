@@ -1,13 +1,21 @@
 # omniunibot
 
-### An omnipotent universal bot for python
-* An omnipotent universal message bot library
+[![Upload Python Package](https://github.com/yttty/omniunibot/actions/workflows/python-publish.yml/badge.svg)](https://github.com/yttty/omniunibot/actions/workflows/python-publish.yml)
 
-### Installation
+### 🤖 An omnipotent universal message bot library for python
+- Supported platforms
+    - Dingtalk
+    - Feishu
+    - WeChat Work (WeCom)
+- Features
+    - Non-blocking mode for sending messages
+    - Send to multiple platforms with one-line code
+
+### 💻 Installation
 - *(via pip)* `pip install -U omniunibot`
 - *(via source)* clone this repo && `python setup.py install` or `python setup.py develop`
 
-### Usage
+### 📜 Usage
 
 #### Standalone non-blocking mode
 1. Prepare a config file
@@ -38,7 +46,7 @@
         ```
 2. Start the bot server
     ```sh
-    python -m omniunibot --channel test-channels
+    python -m omniunibot
     ```
 
 3. Use the client-side code in your code
@@ -47,12 +55,14 @@
 
     client = OmniUniBotClient("tcp://*:58655")
     client.send(
+        channel="test-channels",
         title="msgTitle",
         msg="msgContent"
     )
+
     ```
 
-#### Integration mode
+#### Integration mode (Blocking mode, not recommended)
 
 ```py
 # import bots

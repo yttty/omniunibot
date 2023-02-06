@@ -17,12 +17,6 @@ def parse_args():
         dest='config',
         help='Path of config file')
 
-    parser.add_argument(
-        '--channel',
-        dest='channel',
-        help='The channel to send message',
-        required=True)
-
     parser.set_defaults(config=f'{os.environ["HOME"]}/configs/omniunibot.json')
     return parser.parse_args()
 
@@ -31,7 +25,6 @@ if __name__ == '__main__':
     args = parse_args()
 
     logger.debug(f'Config path: {args.config}')
-    logger.debug(f"Channel: {args.channel}")
 
-    server = OmniUniBotServer(args.config, args.channel)
+    server = OmniUniBotServer(args.config)
     server.run()

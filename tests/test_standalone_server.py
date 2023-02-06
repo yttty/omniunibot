@@ -14,9 +14,8 @@ from omniunibot import OmniUniBotServer
 
 
 class Tester:
-    def __init__(self, config: str, channel: str):
-        self.channel = channel
-        self.server = OmniUniBotServer(config, self.channel)
+    def __init__(self, config: str):
+        self.server = OmniUniBotServer(config)
 
     def run(self):
         self.server.run()
@@ -30,12 +29,6 @@ def parse_args():
         dest='config',
         help='Path of config file')
 
-    parser.add_argument(
-        '--channel',
-        dest='channel',
-        help='The channel to send message',
-        required=True)
-
     parser.set_defaults(config=f'{os.environ["HOME"]}/configs/omniunibot.json')
     return parser.parse_args()
 
@@ -44,7 +37,6 @@ if __name__ == '__main__':
     args = parse_args()
 
     logger.debug(f'Config path: {args.config}')
-    logger.debug(f"Channel: {args.channel}")
 
-    tester = Tester(args.config, args.channel)
+    tester = Tester(args.config)
     tester.run()
