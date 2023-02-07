@@ -41,7 +41,7 @@
                     }
                 ]
             },
-            "bind": "tcp://localhost:58655"
+            "bind": "tcp://*:58655"
         }
         ```
 2. Start the bot server
@@ -53,7 +53,7 @@
     ```py
     from omniunibot import OmniUniBotClient
 
-    client = OmniUniBotClient("tcp://*:58655")
+    client = OmniUniBotClient("tcp://localhost:58655")
     client.send(
         channel="test-channels",
         title="msgTitle",

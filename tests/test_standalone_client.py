@@ -14,7 +14,7 @@ app = typer.Typer()
 
 @app.command()
 def runTest(channel: str = typer.Argument('test-feishu-channel'),
-            bind: str = "tcp://*:58655"):
+            bind: str = "tcp://localhost:58655"):
     client = OmniUniBotClient(bind)
     for i in range(1, 3):
         msgTitle = f"Test {i}"
