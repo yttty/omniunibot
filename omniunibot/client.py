@@ -1,7 +1,7 @@
 import zmq
 import json
 from loguru import logger
-from zmq import Context
+from zmq.asyncio import Context
 from time import sleep
 from typing import Optional
 
@@ -21,8 +21,8 @@ class OmniUniBotClient:
         self._addr = bind
         self._ctx = Context()
         self._socket = self._ctx.socket(zmq.PUB)
-        self._socket.bind(self._addr)
-        logger.debug(f"Client bind to {self._addr}")
+        self._socket.connect(self._addr)
+        logger.debug(f"Client connect to {self._addr}")
         # wait for connection to be ready
         sleep(1)
 

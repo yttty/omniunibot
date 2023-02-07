@@ -1,7 +1,9 @@
 import zmq
 import json
+import asyncio
 from loguru import logger
-from zmq import Context
+from zmq.asyncio import Context
+
 
 from concurrent.futures import ThreadPoolExecutor
 
@@ -47,6 +49,10 @@ class OmniUniBotServer:
         self._socket = self._ctx.socket(zmq.SUB)
         self._socket.setsockopt(zmq.SUBSCRIBE, ''.encode('utf-8'))
 
+        # Initialize asyncio
+        self.loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.loop)
+
         # Initialize bots
         self.bots = {}
         for channel in self._channels.keys():
@@ -84,13 +90,13 @@ class OmniUniBotServer:
             for bot in self.bots[channel]:
                 executors.append(executor.submit(bot.sendQuickMessage, msg))
 
-    def run(self):
-        self._socket.connect(self._addr)
-        logger.debug(f"Server connect to {self._addr}")
+    async def _startServer(self):
+        self._socket.bind(self._addr)
+        logger.debug(f"Server bind to {self._addr}")
         while True:
             try:
-                info = json.loads(self._socket.recv_multipart()[
-                                  1].decode('utf-8'))
+                mtPart = await self._socket.recv_multipart()
+                info = json.loads(mtPart[1].decode('utf-8'))
 
                 if info['msgType'] not in ['text']:
                     raise NotImplementedError(
@@ -113,3 +119,7 @@ class OmniUniBotServer:
             except Exception as e:
                 logger.error(str(e))
                 pass
+
+    def run(self):
+        asyncio.ensure_future(self._startServer(), loop=self.loop)
+        self.loop.run_forever()

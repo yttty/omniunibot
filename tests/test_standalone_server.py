@@ -1,7 +1,7 @@
 """
 Hot to run:
     1. python setup.py develop
-    2. python test_standalone_server.py --channel test-feishu-channel --config $HOME/configs/omniunibot.json
+    2. python test_standalone_server.py --config $HOME/configs/omniunibot.json
 """
 
 
