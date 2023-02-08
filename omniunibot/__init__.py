@@ -4,3 +4,5 @@ from .wrapper.feishu import FeishuBot
 
 from .server import OmniUniBotServer
 from .client import OmniUniBotClient
+
+from .__version__ import __version__
