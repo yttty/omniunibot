@@ -11,16 +11,18 @@ import os
 from pprint import pprint
 
 from loguru import logger
-from omniunibot import FeishuBot, DingTalkBot, WeComBot, OmniUniBotServer
+from omniunibot import FeishuBot, DingTalkBot, WeComBot, SlackBot, OmniUniBotServer
 
 
 class Tester:
     def __init__(self, config: str, channel: str):
         self.channel = channel
-        self.server = OmniUniBotServer(config, self.channel)
+        self.server = OmniUniBotServer(config)
 
     def run(self):
-        self.server._bulkSend('Test Passed')
+        self.server._bulkSend(channel=self.channel,
+                              msg='_Test_ *Passed*',
+                              msgType='text')
 
 
 def parse_args():

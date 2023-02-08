@@ -13,12 +13,12 @@ app = typer.Typer()
 
 
 @app.command()
-def runTest(channel: str = typer.Argument('test-feishu-channel'),
+def runTest(channel: str = typer.Argument('test-channels'),
             bind: str = "tcp://localhost:58655"):
     client = OmniUniBotClient(bind)
     for i in range(1, 3):
-        msgTitle = f"Test {i}"
-        msgContent = f'Test {i} passed!'
+        msgTitle = f"*Test {i}*"
+        msgContent = f'_Test {i} passed!_'
         client.send(
             channel=channel,
             title=msgTitle,

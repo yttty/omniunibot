@@ -9,6 +9,7 @@ import base64
 import urllib.parse
 from typing import List, Optional
 import requests
+import traceback
 from loguru import logger
 
 from .base import BaseBot
@@ -87,4 +88,4 @@ class DingTalkBot(BaseBot):
             else:
                 self._onErrorResponse(response)
         except Exception as e:
-            logger.error(f"Caught Exception {str(e)}")
+            logger.error(f"{traceback.format_exc()}")

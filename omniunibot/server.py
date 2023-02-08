@@ -10,6 +10,7 @@ from concurrent.futures import ThreadPoolExecutor
 from .wrapper.dingtalk import DingTalkBot
 from .wrapper.wecom import WeComBot
 from .wrapper.feishu import FeishuBot
+from .wrapper.slack import SlackBot
 
 
 class OmniUniBotServer:
@@ -66,6 +67,8 @@ class OmniUniBotServer:
                                       secret=targetChannelConfig['secret'])
                 elif targetChannelConfig['platform'] == "wecom":
                     bot = WeComBot(webhook=targetChannelConfig['webhook'])
+                elif targetChannelConfig['platform'] == "slack":
+                    bot = SlackBot(webhook=targetChannelConfig['webhook'])
                 else:
                     raise KeyError("Unknown platform {}".format(
                         targetChannelConfig['platform']))

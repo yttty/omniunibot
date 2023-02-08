@@ -4,8 +4,9 @@
 
 ### 🤖 An omnipotent universal message bot library for python
 - Supported platforms
-    - Dingtalk
     - Feishu
+    - Slack
+    - Dingtalk
     - WeChat Work (WeCom)
 - Features
     - Non-blocking mode for sending messages
@@ -29,6 +30,10 @@
                         "platform": "feishu",
                         "webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/xxxxx-xxxxx",
                         "secret": "xxxxx"
+                    },
+                    {
+                        "platform": "slack",
+                        "webhook": "https://hooks.slack.com/services/xxxx/xxxx/xxxxxx"
                     },
                     {
                         "platform": "dingtalk",
@@ -66,12 +71,13 @@
 
 ```py
 # import bots
-from omniunibot import FeishuBot, DingTalkBot, WeComBot
+from omniunibot import FeishuBot, DingTalkBot, WeComBot, SlackBot
 
 # initialize bots
-bot = FeishuBot('<webhook_id>', '<secret>')
-bot = DingTalkBot('<token>', '<secret>')
-bot = WeComBot('<token>')
+bot = FeishuBot('<webhook>', '<secret>')
+bot = DingTalkBot('<webhook>', '<secret>')
+bot = WeComBot('<webhook>')
+bot = SlackBot('<webhook>')
 
 # send message
 bot.sendQuickMessage('Test Passed')
