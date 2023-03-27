@@ -3,6 +3,7 @@ Description : Bots for WXWork
 """
 
 import requests
+import traceback
 from loguru import logger
 
 from .base import BaseBot
@@ -80,7 +81,7 @@ class WeComBot(BaseBot):
             else:
                 self._onErrorResponse(response)
         except Exception as e:
-            logger.error(f"Caught Exception {str(e)}")
+            logger.error(f"{traceback.format_exc()}")
 
     def sendImage(self, imgPath: str):
         raise NotImplementedError

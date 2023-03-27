@@ -1,2 +1,2 @@
 #!/bin/bash
-python -m omniunibot --channel test-channels
+python -m omniunibot

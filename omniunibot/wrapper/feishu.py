@@ -3,6 +3,7 @@ import time
 import hashlib
 import hmac
 import requests
+import traceback
 from loguru import logger
 
 from .base import BaseBot
@@ -67,9 +68,9 @@ class FeishuBot(BaseBot):
             r = requests.post(self.webhook,
                               json=self.generatePayload(msg))
             response = r.json()
-            if "code" in response.keys():
+            if "code" in response.keys() and response['code'] != 0:
                 self._onErrorResponse(response)
             else:
                 self._onSuccessResponse()
         except Exception as e:
-            logger.error(f"Caught Exception {str(e)}")
+            logger.error(f"{traceback.format_exc()}")
