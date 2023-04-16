@@ -5,6 +5,7 @@ import hmac
 import requests
 import traceback
 from loguru import logger
+from typing import List, Optional
 
 from .base import BaseBot
 
@@ -50,15 +51,38 @@ class FeishuBot(BaseBot):
         logger.info("Successully sent message to Feishu.")
         return 0
 
-    def generatePayload(self, text: str):
+    def generatePayload(self,
+                        text: str,
+                        title: Optional[str] = None):
+        """Generate payload to send, using message type `post`, see the document for details
+
+        Args:
+            text (str): _description_
+            title (Optional[str], optional): _description_. Defaults to None.
+            at_uid (Optional[List[str]], optional): uids to at. Defaults to None.
+        """
         timestamp, sign = self._sign()
+        post_zh_cn = {
+            "content": [
+                [
+                    {
+                        "tag": "text",
+                        "text": text
+                    }
+                ]
+            ]
+        }
+        if title:
+            post_zh_cn["title"] = title
         payload = {
             "timestamp": timestamp,
             "sign": sign,
-            "msg_type": "text",
+            "msg_type": "post",
             "content": {
-                "text": text
-            },
+                "post": {
+                        "zh_cn": post_zh_cn
+                }
+            }
         }
         return payload
 
