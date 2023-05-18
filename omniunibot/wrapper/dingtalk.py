@@ -44,7 +44,7 @@ class DingTalkBot(BaseBot):
         return response['errcode']
 
     def _onSuccessResponse(self, response=None) -> int:
-        logger.info("Successully sent message to DingTalk.")
+        logger.debug("Successully sent message to DingTalk.")
         return 0
 
     def generatePayload(self,
@@ -65,7 +65,7 @@ class DingTalkBot(BaseBot):
         return payload
 
     def sendMessage(self, payload: dict):
-        logger.info(f"Get message: {payload}")
+        logger.debug(f"Get message: {payload}")
         try:
             r = requests.post(self._getSignedUrlForDingDing(),
                               json=payload)
@@ -78,7 +78,7 @@ class DingTalkBot(BaseBot):
             logger.error(f"Caught Exception {str(e)}")
 
     def sendQuickMessage(self, msg: str):
-        logger.info(f"Get text message: {msg}")
+        logger.debug(f"Get text message: {msg}")
         try:
             r = requests.post(self._getSignedUrlForDingDing(),
                               json=self.generatePayload(msg))

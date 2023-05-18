@@ -28,7 +28,7 @@ class WeComBot(BaseBot):
         return response['errcode']
 
     def _onSuccessResponse(self, response=None) -> int:
-        logger.info("Successully sent message to WeCom.")
+        logger.debug("Successully sent message to WeCom.")
         return 0
 
     def generatePayload(self, msgtype: str, **kwargs):
@@ -58,7 +58,7 @@ class WeComBot(BaseBot):
         return payload
 
     def sendMessage(self, payload: dict):
-        logger.info(f"Get message: {payload}")
+        logger.debug(f"Get message: {payload}")
         try:
             r = requests.post(self.webhook, json=payload)
             response = r.json()
@@ -70,7 +70,7 @@ class WeComBot(BaseBot):
             logger.error(f"Caught Exception {str(e)}")
 
     def sendQuickMessage(self, text: str):
-        logger.info(f"Get text Message: {text}")
+        logger.debug(f"Get text Message: {text}")
         try:
             r = requests.post(self.webhook,
                               json=self.generatePayload(msgtype="text",

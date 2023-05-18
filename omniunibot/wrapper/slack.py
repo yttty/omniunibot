@@ -34,7 +34,7 @@ class SlackBot(BaseBot):
         return response.status_code
 
     def _onSuccessResponse(self, response=None) -> int:
-        logger.info("Successully sent message to Slack.")
+        logger.debug("Successully sent message to Slack.")
         return 0
 
     def generatePayload(self, text: str) -> Dict:
@@ -75,7 +75,7 @@ class SlackBot(BaseBot):
         return payload
 
     def sendQuickMessage(self, msg: str):
-        logger.info(f"Get text message: {msg}")
+        logger.debug(f"Get text message: {msg}")
         try:
             response = self.slack_client.send_dict(self.generatePayload(msg))
             if response.status_code != 200:

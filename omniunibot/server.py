@@ -101,6 +101,8 @@ class OmniUniBotServer:
                 mtPart = await self._socket.recv_multipart()
                 info = json.loads(mtPart[1].decode('utf-8'))
 
+                logger.debug(f"Server receive: {info}")
+
                 if info['msgType'] not in ['text']:
                     raise NotImplementedError(
                         f"Unsupported message type {info['msgType']}")
