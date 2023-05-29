@@ -48,7 +48,7 @@ class FeishuBot(BaseBot):
         return response['code']
 
     def _onSuccessResponse(self, response=None) -> int:
-        logger.info("Successully sent message to Feishu.")
+        logger.debug("Successully sent message to Feishu.")
         return 0
 
     def generatePayload(self,
@@ -87,7 +87,7 @@ class FeishuBot(BaseBot):
         return payload
 
     def sendQuickMessage(self, msg: str):
-        logger.info(f"Get text message: {msg}")
+        logger.debug(f"Get text message: {msg}")
         try:
             r = requests.post(self.webhook,
                               json=self.generatePayload(msg))
