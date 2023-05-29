@@ -3,7 +3,7 @@ import json
 import asyncio
 from loguru import logger
 from zmq.asyncio import Context
-
+from traceback import format_exc
 
 from concurrent.futures import ThreadPoolExecutor
 
@@ -95,7 +95,7 @@ class OmniUniBotServer:
 
     async def _startServer(self):
         self._socket.bind(self._addr)
-        logger.debug(f"Server bind to {self._addr}")
+        logger.info(f"Server bind to {self._addr}")
         while True:
             try:
                 mtPart = await self._socket.recv_multipart()
@@ -122,7 +122,7 @@ class OmniUniBotServer:
                 logger.info('Bye')
                 exit(0)
             except Exception as e:
-                logger.error(str(e))
+                logger.error(format_exc())
                 pass
 
     def run(self):
