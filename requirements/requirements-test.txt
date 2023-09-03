@@ -1,4 +1,0 @@
--r common.txt
-pytest>=6.2.5
-pytest-pep8>=1.0.6
-typer
