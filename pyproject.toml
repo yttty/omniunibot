@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "omniunibot"
-version = "0.1.0"
+version = "0.1.1"
 description = "A universal multiplatform message bot"
 authors = ["yttty <yttty@noreply.com>"]
 license = "MIT"
@@ -16,6 +16,7 @@ python = "^3.9"
 loguru = "^0.6.0"
 pyzmq = "^24.0.0"
 slack-sdk = "^3.21.3"
+requests = "^2.31.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.1"

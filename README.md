@@ -1,6 +1,6 @@
 # omniunibot
 
-[![Upload Python Package](https://github.com/yttty/omniunibot/actions/workflows/python-publish.yml/badge.svg)](https://github.com/yttty/omniunibot/actions/workflows/python-publish.yml)
+<!-- [![Upload Python Package](https://github.com/yttty/omniunibot/actions/workflows/python-publish.yml/badge.svg)](https://github.com/yttty/omniunibot/actions/workflows/python-publish.yml) -->
 
 ### 🤖 An omnipotent universal message bot library for python
 
