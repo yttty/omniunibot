@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "omniunibot"
-version = "0.1.1"
+version = "0.1.2"
 description = "A universal multiplatform message bot"
 authors = ["yttty <yttty@noreply.com>"]
 license = "MIT"

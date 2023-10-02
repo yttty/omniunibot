@@ -1,3 +1,4 @@
+import os
 import zmq
 import json
 import asyncio
@@ -27,6 +28,7 @@ class OmniUniBotServer:
         """
         assert isinstance(config, OmniUniBotConfig), "Invalid config"
         self._config = config
+        self._init_logger()
         self._init_bots()
 
         # Initialize ZMQ
@@ -38,6 +40,17 @@ class OmniUniBotServer:
         # Initialize loop
         self._loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self._loop)
+
+    def _init_logger(self):
+        handlers_cfg = []
+        assert self._config.log.level in ["TRACE", "DEBUG", "INFO", "SUCCESS", "WARNING", "ERROR", "CRITICAL"]
+        log_file_handler_cfg = dict(
+            sink=str(self._config.log.dir / ("omniunibot.server" + ".{time:YYYY-MM-DD}" + ".log")),
+            level=self._config.log.level,
+            rotation="00:00",
+        )
+        handlers_cfg.append(log_file_handler_cfg)
+        logger.configure(handlers=handlers_cfg)
 
     def _get_bot(self, channel_config: OmniUniBotChannelConfig) -> Optional[Union[LarkBot, DingTalkBot, SlackBot]]:
         if channel_config.platform == OmniUniBotPlatform.Slack:
@@ -96,7 +109,6 @@ class OmniUniBotServer:
                 mtPart = await self._socket.recv_multipart()
                 if mtPart[0] == OMNI_ZMQ_TOPIC:
                     part: dict = json.loads(mtPart[1].decode("utf-8"))
-                    logger.debug(f"Server receive: {part}")
                     msg = Msg.from_dict(part)
                     if msg.channel_group not in self._bots.keys():
                         raise ValueError(f"No such channel {msg.channel_group}")
@@ -108,7 +120,8 @@ class OmniUniBotServer:
             except KeyboardInterrupt:
                 logger.info("Bye")
                 exit(0)
-            except Exception:
+            except Exception as e:
+                logger.error(f"Server encounter {str(e)}. Data={part}")
                 logger.debug(traceback.format_exc())
             finally:
                 await asyncio.sleep(self._config.server.interval)

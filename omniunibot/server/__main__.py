@@ -24,7 +24,7 @@ if __name__ == "__main__":
     try:
         config = OmniUniBotConfig.from_dict(json.load(open(args.config, "r")))
     except Exception as e:
-        logger.error(f"Failed to open config file {args.config}")
+        logger.error(f"Failed to open config file {args.config}. Reason: {str(e)}")
         exit(-1)
     server = OmniUniBotServer(config)
     server.start()

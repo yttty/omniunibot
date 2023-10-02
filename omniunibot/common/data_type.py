@@ -2,6 +2,7 @@ from enum import Enum, auto
 from abc import abstractmethod, abstractclassmethod, ABC
 from dataclasses import dataclass
 from typing import Optional, Dict
+from pathlib import Path
 
 
 class OmniUniBotPlatform(Enum):
@@ -33,7 +34,7 @@ class OmniUniBotChannelConfig(DictCompatibleADT):
             "webhook": self.webhook,
         }
         if self.secret is not None:
-            d["sceret"] = self.secret
+            d["secret"] = self.secret
         return d
 
     @classmethod
@@ -101,15 +102,40 @@ class OmniUniBotServerConfig(DictCompatibleADT):
 
 
 @dataclass
+class OmniUniBotLoggingConfig(DictCompatibleADT):
+    level: str = "DEBUG"
+    dir: Path = Path.home() / "logs" / "omniunibot"
+
+    def to_dict(self) -> dict:
+        return {"level": self.level, "dir": str(self.dir.absolute())}
+
+    @classmethod
+    def from_dict(cls, d: dict):
+        return cls(d["level"], Path(d["dir"]))
+
+    def __eq__(self, __value: object) -> bool:
+        if not isinstance(__value, OmniUniBotLoggingConfig):
+            raise TypeError(f"{type(__value)}")
+        return all(
+            [
+                self.level == __value.level,
+                self.dir == __value.dir,
+            ]
+        )
+
+
+@dataclass
 class OmniUniBotConfig(DictCompatibleADT):
     server: OmniUniBotServerConfig
     client: OmniUniBotClientConfig
+    log: OmniUniBotLoggingConfig
     channel_groups: Dict[str, list[OmniUniBotChannelConfig]]
 
     def to_dict(self) -> dict:
         return {
             "server": self.server.to_dict(),
             "client": self.client.to_dict(),
+            "log": self.log.to_dict(),
             "channel_groups": {k: [channel.to_dict() for channel in v] for k, v in self.channel_groups.items()},
         }
 
@@ -123,6 +149,7 @@ class OmniUniBotConfig(DictCompatibleADT):
         return cls(
             OmniUniBotServerConfig.from_dict(d["server"]),
             OmniUniBotClientConfig.from_dict(d["client"]),
+            OmniUniBotLoggingConfig.from_dict(d["log"]) if "log" in d.keys() else OmniUniBotLoggingConfig(),
             channel_groups,
         )
 
@@ -133,6 +160,7 @@ class OmniUniBotConfig(DictCompatibleADT):
             [
                 self.server == __value.server,
                 self.client == __value.client,
+                self.log == __value.log,
                 self.channel_groups == __value.channel_groups,
             ]
         )
