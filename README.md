@@ -32,6 +32,10 @@
             "client": {
                 "bind": "tcp://localhost:58655"
             },
+            "log": {
+                "level": "DEBUG",
+                "dir": "/home/ubuntu/logs/omniunibot",
+            },
             "channel_groups": {
                 "test_channels": [
                     {
