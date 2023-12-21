@@ -2,7 +2,7 @@ from omniunibot import OmniUniBotClient, OmniUniBotConfig
 
 
 def test_client_1():
-    client = OmniUniBotClient(bind="tcp://localhost:58655")
+    client = OmniUniBotClient(bind="tcp://localhost:58655", quiet=False)
     msg_text = f"*Test 1* - _Pass!_"
     client.send(channel_group="test_channels", msg_type="Text", text=msg_text)
 
@@ -20,17 +20,17 @@ def test_client_2():
             "test_channels": [
                 {
                     "platform": "Slack",
-                    "webhook": "https://hooks.slack.com/services/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",
+                    "webhook": "https://hooks.slack.com/services/xxxx/xxxx/xxxx",
                 },
                 {
                     "platform": "Lark",
-                    "webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/1a166e72-9dae-4989-a9eb-3ae4f0fb51b7",
-                    "secret": "eJ3EE0Ghn5Dp0z11O9k9Sg",
+                    "webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/1a166e72-xxxx-xxxx-xxxx-3ae4f0fb51b7",
+                    "secret": "xxxxxx",
                 },
                 {
                     "platform": "DingTalk",
-                    "webhook": "https://oapi.dingtalk.com/robot/send?access_token=9a045513ee68234eed36308d579901edd5a83e9413d9619233280a1ad6f6b5e9",
-                    "secret": "SECbba89f6262b8b2823bb05013df307dc850258e695cd202b5519ad011234fe72e",
+                    "webhook": "https://oapi.dingtalk.com/robot/send?access_token=xxxxxx",
+                    "secret": "xxxxxx",
                 },
             ]
         },

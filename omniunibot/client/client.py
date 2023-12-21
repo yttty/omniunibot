@@ -15,11 +15,14 @@ class OmniUniBotClient:
         self,
         bind: Optional[str] = None,
         config: Optional[OmniUniBotConfig] = None,
+        quiet: bool = True,
     ) -> None:
         """Initialize OmniUniBot Client
 
         Args:
             bind (str): the bind addr
+            config (OmniUniBotConfig): the config
+            quiet (bool): set True to avoid print debug logs
         """
         # sanity check
         assert operator.xor(bind is not None, config is not None), "Must provide `bind` OR `config`"
@@ -32,11 +35,14 @@ class OmniUniBotClient:
             self._addr = bind
             self._channel_groups = None
 
+        self._quiet = quiet
+
         # Initialize ZMQ
         self._ctx = Context()
         self._socket = self._ctx.socket(zmq.PUB)
         self._socket.connect(self._addr)
-        logger.debug(f"Client connect to {self._addr}")
+        if not self._quiet:
+            logger.debug(f"Client connect to {self._addr}")
         # wait for connection to be ready
         time.sleep(1)
 
@@ -75,6 +81,7 @@ class OmniUniBotClient:
             )
             info = json.dumps(msg.to_dict()).encode("utf-8")
             self._socket.send_multipart([OMNI_ZMQ_TOPIC, info])
-            logger.debug(f"Client sent msg {info}")
+            if not self._quiet:
+                logger.debug(f"Client sent msg {info}")
         else:
             logger.warning(f"Channel {channel_group} not configured.")

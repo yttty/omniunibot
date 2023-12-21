@@ -34,7 +34,7 @@
             },
             "log": {
                 "level": "DEBUG",
-                "dir": "/home/ubuntu/logs/omniunibot",
+                "dir": "/home/ubuntu/logs/omniunibot"
             },
             "channel_groups": {
                 "test_channels": [
