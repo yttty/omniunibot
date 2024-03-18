@@ -1,5 +1,6 @@
 from omniunibot import OmniUniBotClient, OmniUniBotConfig
 from time import sleep
+import asyncio
 
 
 def run_client_1():
@@ -42,7 +43,15 @@ def run_client_2():
     client.send(channel_group="nonexist_channels", msg_type="Text", text=msg_text)
 
 
+async def run_client_3():
+    client = OmniUniBotClient(bind="tcp://localhost:58655")
+    msg_text = f"*Test 3 (Async)* - _Pass!_"
+    await client.send_async(channel_group="test_channels", msg_type="Text", text=msg_text)
+
+
 if __name__ == "__main__":
     run_client_1()
     sleep(3)
     run_client_2()
+    sleep(3)
+    asyncio.run(run_client_3())
