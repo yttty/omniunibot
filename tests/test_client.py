@@ -1,4 +1,5 @@
 from omniunibot import OmniUniBotClient, OmniUniBotConfig
+import pytest
 
 
 def test_client_1():
@@ -39,3 +40,10 @@ def test_client_2():
     msg_text = f"*Test 2* - _Pass!_"
     client.send(channel_group="test_channels", msg_type="Text", text=msg_text)
     client.send(channel_group="nonexist_channels", msg_type="Text", text=msg_text)
+
+
+@pytest.mark.asyncio
+async def test_client_3():
+    client = OmniUniBotClient(bind="tcp://localhost:58655")
+    msg_text = f"*Test 3 (Async)* - _Pass!_"
+    await client.send_async(channel_group="test_channels", msg_type="Text", text=msg_text)
