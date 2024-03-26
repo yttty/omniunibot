@@ -1,22 +1,20 @@
 [tool.poetry]
 name = "omniunibot"
-version = "0.2.0"
+version = "0.3.0"
 description = "A universal multiplatform message bot"
 authors = ["yttty <yttty@noreply.com>"]
 license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/yttty/omniunibot"
 repository = "https://github.com/yttty/omniunibot"
-include = [
-    "LICENSE",
-]
+include = ["LICENSE"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
-loguru = "^0.6.0"
-pyzmq = "^24.0.0"
-slack-sdk = "^3.21.3"
-requests = "^2.31.0"
+python = "^3.12"
+loguru = ">=0.6, <0.8"
+pyzmq = "^25.1"
+slack-sdk = "^3.21"
+requests = "^2.31"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.1"
