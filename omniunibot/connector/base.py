@@ -58,7 +58,7 @@ class BaseBot(ABC):
             msg_id: str = str(uuid.uuid4().hex)
 
             # decide msg_type
-            if msg_type == "Auto":
+            if msg_type == "Auto" or msg_type == MsgType.Auto:
                 if "text" in msg_content:
                     msg_type = MsgType.Text
                 elif "img_path" in msg_content:

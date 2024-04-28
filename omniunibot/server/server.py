@@ -5,19 +5,19 @@ import asyncio
 from loguru import logger
 from zmq.asyncio import Context
 import traceback
-from typing import Union, Dict, Optional
-from concurrent.futures import ThreadPoolExecutor
+from typing import Dict, Any
+from pathlib import Path
 
-from .wrapper.dingtalk import DingTalkBot
-from .wrapper.lark import LarkBot
-from .wrapper.slack import SlackBot
-from .wrapper.base import BaseBot
+from ..connector.dingtalk import DingTalkBot
+from ..connector.lark import LarkBot
+from ..connector.slack import SlackBot
+from ..connector.base import BaseBot
 from ..common.data_type import OmniUniBotConfig, OmniUniBotPlatform, OmniUniBotChannelConfig, MsgType, Msg
 from ..common.constants import OMNI_ZMQ_TOPIC
 
 
 class OmniUniBotServer:
-    def __init__(self, config: OmniUniBotConfig) -> None:
+    def __init__(self, config: OmniUniBotConfig | str | Path | None) -> None:
         """Initialize OmniUniBot Server
 
         Args:
@@ -26,9 +26,21 @@ class OmniUniBotServer:
         Raises:
             ValueError: Raised there is no such channel in config
         """
-        assert isinstance(config, OmniUniBotConfig), "Invalid config"
-        self._config = config
+
+        if config is None:
+            self._config = OmniUniBotConfig.from_dict(
+                json.load(open(Path.home() / "configs" / "omniunibot.json", "r"))
+            )
+        elif isinstance(config, str) or isinstance(config, Path):
+            self._config = OmniUniBotConfig.from_dict(json.load(open(config, "r")))
+        elif isinstance(config, OmniUniBotConfig):
+            self._config = config
+        else:
+            raise TypeError("Invalid config")
+
         self._init_logger()
+        logger.debug(f"Config: {self._config.to_dict()}")
+
         self._init_bots()
 
         # Initialize ZMQ
@@ -36,10 +48,6 @@ class OmniUniBotServer:
         self._ctx = Context()
         self._socket = self._ctx.socket(zmq.SUB)
         self._socket.setsockopt(zmq.SUBSCRIBE, "".encode("utf-8"))
-
-        # Initialize loop
-        self._loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self._loop)
 
     def _init_logger(self):
         handlers_cfg = []
@@ -52,7 +60,7 @@ class OmniUniBotServer:
         handlers_cfg.append(log_file_handler_cfg)
         logger.configure(handlers=handlers_cfg)
 
-    def _get_bot(self, channel_config: OmniUniBotChannelConfig) -> Optional[Union[LarkBot, DingTalkBot, SlackBot]]:
+    def _get_bot(self, channel_config: OmniUniBotChannelConfig) -> LarkBot | DingTalkBot | SlackBot | None:
         if channel_config.platform == OmniUniBotPlatform.Slack:
             return SlackBot(channel_config.webhook)
         elif channel_config.platform == OmniUniBotPlatform.DingTalk:
@@ -78,11 +86,11 @@ class OmniUniBotServer:
             )
         logger.info(f"Total {len(self._bots)} channel groups ready.")
 
-    def _bulk_send(
+    async def _bulk_send(
         self,
         channel_group_name: str,
+        msg_content: Dict[str, Any],
         msg_type: MsgType,
-        msg_content: dict,
     ):
         """_summary_
 
@@ -90,16 +98,8 @@ class OmniUniBotServer:
             channel_group_name (str): _description_
             msg_type (MsgType): _description_
         """
-        executors = []
-        with ThreadPoolExecutor(max_workers=len(self._bots[channel_group_name])) as executor:
-            for bot in self._bots[channel_group_name]:
-                executors.append(
-                    executor.submit(
-                        bot.send,
-                        msg_type=msg_type,
-                        msg_content=msg_content,
-                    )
-                )
+        for bot in self._bots[channel_group_name]:
+            asyncio.create_task(bot.send(msg_content=msg_content, msg_type=msg_type))
 
     async def _start_server(self):
         self._socket.bind(self._addr)
@@ -112,20 +112,25 @@ class OmniUniBotServer:
                     msg = Msg.from_dict(part)
                     if msg.channel_group not in self._bots.keys():
                         raise ValueError(f"No such channel {msg.channel_group}")
-                    self._bulk_send(
-                        channel_group_name=msg.channel_group,
-                        msg_type=msg.msg_type,
-                        msg_content=msg.msg_content,
+                    asyncio.create_task(
+                        self._bulk_send(
+                            channel_group_name=msg.channel_group,
+                            msg_content=msg.msg_content,
+                            msg_type=msg.msg_type,
+                        )
                     )
-            except KeyboardInterrupt:
-                logger.info("Bye")
-                exit(0)
+            except (KeyboardInterrupt, asyncio.exceptions.CancelledError) as e:
+                raise e
             except Exception as e:
                 logger.error(f"Server encounter {str(e)}. Data={part}")
                 logger.debug(traceback.format_exc())
             finally:
                 await asyncio.sleep(self._config.server.interval)
 
-    def start(self):
-        asyncio.ensure_future(self._start_server(), loop=self._loop)
-        self._loop.run_forever()
+    async def start(self):
+        try:
+            async with asyncio.TaskGroup() as tg:
+                _ = tg.create_task(self._start_server())
+        except (KeyboardInterrupt, asyncio.exceptions.CancelledError):
+            logger.info("Stop {}. Bye.", self.__class__.__name__)
+            exit(0)

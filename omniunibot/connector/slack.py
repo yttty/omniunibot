@@ -1,6 +1,6 @@
 from pathlib import Path
-from typing import Optional, Dict, Union, Any
-from slack_sdk.webhook import WebhookClient, WebhookResponse
+from typing import Optional, Dict, Any
+from slack_sdk.webhook import WebhookResponse
 from slack_sdk.webhook.async_client import AsyncWebhookClient
 
 from ..common.data_type import MsgType
