@@ -19,7 +19,7 @@
 - *(via pip)* `pip install -U omniunibot`
 - *(via source)* clone this repo && `pip install .`
 
-### 📜 Usage
+### 📜 Client-Server Mode
 
 1. Prepare a config file
     - Default config path: `$HOME/configs/omniunibot.json`
@@ -65,5 +65,31 @@
     python -m omniunibot.server
     ```
 
-3. Use the client-side code in your code
-    - Example: [./example/client_example.py](./example/client_example.py)
+3. Use the client-side code in your code (see examples in [./tests](./tests))
+
+### 📜 Standalone Mode
+
+```py
+bot = DingTalkBot(
+    "https://oapi.dingtalk.com/robot/send?access_token=xxxxxxxxxxxxxxxxx",
+    "xxxxxxxxxxxxxx",
+    on_success="log",
+    on_failure="trace",
+)
+await bot.send({"text": "`test_dingtalkbot_1` Pass"})
+
+bot = LarkBot(
+    "https://open.feishu.cn/open-apis/bot/v2/hook/xxxxx-d879-xxxxx-8d7b-xxxxxxxxxx",
+    "xxxxxxxxxxxxxxx",
+    on_success="log",
+    on_failure="trace",
+)
+await bot.send({"text": "`test_larkbot_1` Pass"})
+
+bot = SlackBot(
+    "https://hooks.slack.com/services/xxxxxxxx/xxxxxxxx/xxxxxxxxxx",
+    on_success="log",
+    on_failure="trace",
+)
+await bot.send({"text": "`test_slackbot_1` Pass"})
+```
