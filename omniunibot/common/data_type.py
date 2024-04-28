@@ -181,7 +181,7 @@ class Msg(DictCompatibleADT):
     def to_dict(self) -> dict:
         return {
             "channel_group": self.channel_group,
-            "msg_type": self.msg_type.value,
+            "msg_type": self.msg_type.name,
             "msg_content": self.msg_content,
         }
 
@@ -189,6 +189,6 @@ class Msg(DictCompatibleADT):
     def from_dict(cls, d: dict):
         return cls(
             d["channel_group"],
-            MsgType(d["msg_type"]),
+            MsgType[d["msg_type"]],
             d["msg_content"],
         )

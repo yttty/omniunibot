@@ -77,7 +77,7 @@ class OmniUniBotClient:
                 {
                     "channel_group": channel_group,
                     "msg_content": msg_content,
-                    "msg_type": msg_type,
+                    "msg_type": msg_type.name,
                 }
             )
         else:
