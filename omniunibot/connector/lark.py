@@ -2,19 +2,19 @@ import base64
 import time
 import hashlib
 import hmac
-import requests
-from loguru import logger
-from typing import Optional, Union
 from pathlib import Path
+import aiohttp
 
+from ..common.data_type import MsgType
 from .base import BaseBot
-from ...common.data_type import MsgType
 
 
 class LarkBot(BaseBot):
     """
-    https://open.feishu.cn/document/ukTMukTMukTM/ucTM5YjL3ETO24yNxkjN
+    https://open.feishu.cn/document/client-docs/bot-v3/add-custom-bot
     """
+
+    _platform = "Lark"
 
     def __init__(self, webhook: str, secret: str, **kwargs):
         """
@@ -23,9 +23,10 @@ class LarkBot(BaseBot):
             secret (str): secret from feishu
         """
 
-        self.webhook = webhook
-        self.secret = secret
-        assert self.secret is not None
+        super().__init__(**kwargs)
+        self._webhook = webhook
+        self._secret = secret
+        assert self._secret is not None
 
     def _sign(self):
         """concat timestamp and secret
@@ -34,25 +35,25 @@ class LarkBot(BaseBot):
             timestamp, sign: _description_
         """
         timestamp = str(round(time.time()))
-        string_to_sign = "{}\n{}".format(timestamp, self.secret)
+        string_to_sign = "{}\n{}".format(timestamp, self._secret)
         hmac_code = hmac.new(string_to_sign.encode("utf-8"), digestmod=hashlib.sha256).digest()
         # b64 encoding
         sign = base64.b64encode(hmac_code).decode("utf-8")
         return timestamp, sign
 
-    def _on_success_response(self) -> None:
-        logger.debug("Successully sent message to Lark.")
+    async def _on_response(self, msg_id: str, rsp: dict | None) -> None:
+        """_summary_
 
-    def _on_error_response(self, response) -> None:
-        logger.error(f"Code={response['code']}. ErrMsg={response['msg']}.")
-
-    def _on_response(self, resp: dict) -> None:
-        if "code" in resp.keys() and resp["code"] != 0:
-            self._on_error_response(resp)
+        Args:
+            msg_id (str): _description_
+            rsp (dict): _description_
+        """
+        if rsp.get("code", None) != 0:
+            await self._on_error_response(msg_id, rsp)
         else:
-            self._on_success_response()
+            await self._on_success_response(msg_id)
 
-    def _generate_payload(self, msg_type: MsgType, text: Optional[str] = None, title: Optional[str] = None, **kwargs):
+    def _generate_payload(self, msg_type: MsgType, text: str | None = None, title: str | None = None, **kwargs):
         """Generate payload to send, using message type `post`, see the document for details
 
         Args:
@@ -72,10 +73,9 @@ class LarkBot(BaseBot):
         }
         return payload
 
-    def _send_image(self, msg_id: str, img_path: Union[str, Path], **kwargs):
-        raise NotImplementedError
-
-    def _send_text(self, msg_id: str, text: str, **kwargs):
-        logger.debug(f"UUID={msg_id}. Receive text message: {text}")
-        r = requests.post(self.webhook, json=self._generate_payload(msg_type=MsgType.Text, text=text))
-        self._on_response(r.json())
+    async def _send_text(self, text: str, **kwargs) -> dict:
+        async with aiohttp.ClientSession() as session:
+            async with session.request(
+                "POST", url=self._webhook, json=self._generate_payload(msg_type=MsgType.Text, text=text, **kwargs)
+            ) as rsp:
+                return await rsp.json()
