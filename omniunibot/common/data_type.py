@@ -1,15 +1,14 @@
 from enum import Enum, auto
-from abc import abstractmethod, abstractclassmethod, ABC
+from abc import abstractmethod, ABC
 from dataclasses import dataclass
 from typing import Optional, Dict
 from pathlib import Path
 
 
 class OmniUniBotPlatform(Enum):
-    Slack = "Slack"
-    Lark = "Lark"
-    DingTalk = "DingTalk"
-    WeChatWork = "WeChatWork"
+    Slack = auto()
+    Lark = auto()
+    DingTalk = auto()
 
 
 class DictCompatibleADT(ABC):
@@ -17,7 +16,8 @@ class DictCompatibleADT(ABC):
     def to_dict(self):
         pass
 
-    @abstractclassmethod
+    @classmethod
+    @abstractmethod
     def from_dict(cls):
         pass
 
@@ -30,7 +30,7 @@ class OmniUniBotChannelConfig(DictCompatibleADT):
 
     def to_dict(self) -> dict:
         d = {
-            "platform": self.platform.value,
+            "platform": self.platform.name,
             "webhook": self.webhook,
         }
         if self.secret is not None:
@@ -40,7 +40,7 @@ class OmniUniBotChannelConfig(DictCompatibleADT):
     @classmethod
     def from_dict(cls, d: dict):
         return cls(
-            OmniUniBotPlatform(d["platform"]),
+            OmniUniBotPlatform[d["platform"]],
             d["webhook"],
             d.get("secret", None),
         )
@@ -167,8 +167,9 @@ class OmniUniBotConfig(DictCompatibleADT):
 
 
 class MsgType(Enum):
-    Text = "Text"
-    Image = "Image"
+    Text = auto()
+    Image = auto()
+    Auto = auto()
 
 
 @dataclass
@@ -180,7 +181,7 @@ class Msg(DictCompatibleADT):
     def to_dict(self) -> dict:
         return {
             "channel_group": self.channel_group,
-            "msg_type": self.msg_type.value,
+            "msg_type": self.msg_type.name,
             "msg_content": self.msg_content,
         }
 
@@ -188,6 +189,6 @@ class Msg(DictCompatibleADT):
     def from_dict(cls, d: dict):
         return cls(
             d["channel_group"],
-            MsgType(d["msg_type"]),
+            MsgType[d["msg_type"]],
             d["msg_content"],
         )

@@ -4,6 +4,7 @@ from loguru import logger
 from zmq.asyncio import Context
 import time
 import operator
+from typing import Any, Dict
 from typing import Optional, Union
 
 from ..common.data_type import Msg, MsgType, OmniUniBotConfig
@@ -58,8 +59,8 @@ class OmniUniBotClient:
     def _fmt_msg(
         self,
         channel_group: str,
+        msg_content: Dict[str, Any],
         msg_type: Union[str, MsgType],
-        **msg_content,
     ) -> Optional[Msg]:
         """Validate and format message
 
@@ -70,13 +71,13 @@ class OmniUniBotClient:
             msg_content (kwargs): ...
         """
         if type(msg_type) is str:
-            msg_type = MsgType(msg_type)
+            msg_type = MsgType[msg_type]
         if self._check_channel_configured(channel_group):
             return Msg.from_dict(
                 {
                     "channel_group": channel_group,
-                    "msg_type": msg_type,
                     "msg_content": msg_content,
+                    "msg_type": msg_type.name,
                 }
             )
         else:
@@ -86,18 +87,18 @@ class OmniUniBotClient:
     def send(
         self,
         channel_group: str,
-        msg_type: Union[str, MsgType] = "Text",
-        **msg_content,
+        msg_content: Dict[str, Any],
+        msg_type: MsgType | str = "Auto",
     ):
         """Send message to OmniUniBotServer
 
         Args:
             channel_group (str): The channel to send message. If the channel name is not
                 configured, the message will be disposed.
+            msg_content (dict): ...
             msg_type (str): Type of the message. Defaults to 'Text'.
-            msg_content (kwargs): ...
         """
-        msg = self._fmt_msg(channel_group, msg_type, **msg_content)
+        msg = self._fmt_msg(channel_group, msg_content, msg_type)
         if msg is not None:
             info = json.dumps(msg.to_dict()).encode("utf-8")
             self._socket.send_multipart([OMNI_ZMQ_TOPIC, info])
@@ -107,18 +108,18 @@ class OmniUniBotClient:
     async def send_async(
         self,
         channel_group: str,
-        msg_type: Union[str, MsgType] = "Text",
-        **msg_content,
+        msg_content: Dict[str, Any],
+        msg_type: MsgType | str = "Auto",
     ):
         """Async send message to OmniUniBotServer
 
         Args:
             channel_group (str): The channel to send message. If the channel name is not
                 configured, the message will be disposed.
+            msg_content (dict): ...
             msg_type (str): Type of the message. Defaults to 'Text'.
-            msg_content (kwargs): ...
         """
-        msg = self._fmt_msg(channel_group, msg_type, **msg_content)
+        msg = self._fmt_msg(channel_group, msg_content, msg_type)
         if msg is not None:
             info = json.dumps(msg.to_dict()).encode("utf-8")
             await self._socket.send_multipart([OMNI_ZMQ_TOPIC, info])
