@@ -5,8 +5,9 @@ import asyncio
 from loguru import logger
 from zmq.asyncio import Context
 import traceback
-from typing import Dict, Any
+from typing import Dict, Any, Deque
 from pathlib import Path
+from collections import deque
 
 from ..connector.dingtalk import DingTalkBot
 from ..connector.lark import LarkBot
@@ -40,8 +41,8 @@ class OmniUniBotServer:
 
         self._init_logger()
         logger.debug(f"Config: {self._config.to_dict()}")
-
         self._init_bots()
+        self._msg_queue:Deque[Msg] = deque()
 
         # Initialize ZMQ
         self._addr = self._config.server.bind
@@ -101,7 +102,7 @@ class OmniUniBotServer:
         for bot in self._bots[channel_group_name]:
             asyncio.create_task(bot.send(msg_content=msg_content, msg_type=msg_type))
 
-    async def _start_server(self):
+    async def _pull_zmq(self):
         self._socket.bind(self._addr)
         logger.info(f"Server bind to {self._addr}")
         while True:
@@ -111,7 +112,18 @@ class OmniUniBotServer:
                     part: dict = json.loads(mtPart[1].decode("utf-8"))
                     msg = Msg.from_dict(part)
                     if msg.channel_group not in self._bots.keys():
-                        raise ValueError(f"No such channel {msg.channel_group}")
+                        logger.warning(f"Ignore msg because of no such channel. Channel={msg.channel_group} Msg={msg.to_dict()}")
+                    else:
+                        self._msg_queue.append(msg)
+            except Exception as e:
+                logger.error(f"_pull_zmq encounter {str(e)}. Data={part}")
+                logger.debug(traceback.format_exc())
+
+    async def _send_msg(self):
+        while True:
+            try:
+                if len(self._msg_queue) > 0:
+                    msg = self._msg_queue.popleft()
                     asyncio.create_task(
                         self._bulk_send(
                             channel_group_name=msg.channel_group,
@@ -119,10 +131,8 @@ class OmniUniBotServer:
                             msg_type=msg.msg_type,
                         )
                     )
-            except (KeyboardInterrupt, asyncio.exceptions.CancelledError) as e:
-                raise e
             except Exception as e:
-                logger.error(f"Server encounter {str(e)}. Data={part}")
+                logger.error(f"_send_msg encounter {str(e)}.")
                 logger.debug(traceback.format_exc())
             finally:
                 await asyncio.sleep(self._config.server.interval)
@@ -130,7 +140,8 @@ class OmniUniBotServer:
     async def start(self):
         try:
             async with asyncio.TaskGroup() as tg:
-                _ = tg.create_task(self._start_server())
+                _ = tg.create_task(self._pull_zmq())
+                _ = tg.create_task(self._send_msg())
         except (KeyboardInterrupt, asyncio.exceptions.CancelledError):
             logger.info("Stop {}. Bye.", self.__class__.__name__)
             exit(0)

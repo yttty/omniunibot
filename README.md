@@ -29,7 +29,7 @@
         {
             "server": {
                 "bind": "tcp://*:58655",
-                "interval": 0.5
+                "interval": 0.1
             },
             "client": {
                 "bind": "tcp://localhost:58655"
