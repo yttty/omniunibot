@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "omniunibot"
-version = "0.4.0"
+version = "0.4.1"
 description = "A universal multiplatform message bot"
 authors = ["yttty <yttty@noreply.com>"]
 license = "MIT"
@@ -17,9 +17,9 @@ aiohttp = "^3.9"
 pyzmq = "^26.0"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.2.0"
-pytest-asyncio = "^0.23.6"
-pytest-pep8 = "^1.0.6"
+pytest = ">=8.2"
+pytest-asyncio = ">=0.23"
+black = ">=24.4"
 
 [build-system]
 requires = ["poetry-core"]

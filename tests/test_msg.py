@@ -1,5 +1,6 @@
 import pytest
-from omniunibot.common.data_type import MsgType, Msg
+
+from omniunibot.common.data_type import Msg, MsgType
 
 
 def test_msg_adt():

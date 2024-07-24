@@ -1,8 +1,8 @@
 import argparse
 import asyncio
 
-from .server import OmniUniBotServer
 from ..common.data_type import OmniUniBotConfig
+from .server import OmniUniBotServer
 
 
 def parse_args():
