@@ -1,20 +1,21 @@
-import os
-import zmq
-import json
 import asyncio
+import json
+import os
+import traceback
+from collections import deque
+from pathlib import Path
+from typing import Any, Deque, Dict
+
+import zmq
 from loguru import logger
 from zmq.asyncio import Context
-import traceback
-from typing import Dict, Any, Deque
-from pathlib import Path
-from collections import deque
 
+from ..common.constants import OMNI_ZMQ_TOPIC
+from ..common.data_type import Msg, MsgType, OmniUniBotChannelConfig, OmniUniBotConfig, OmniUniBotPlatform
+from ..connector.base import BaseBot
 from ..connector.dingtalk import DingTalkBot
 from ..connector.lark import LarkBot
 from ..connector.slack import SlackBot
-from ..connector.base import BaseBot
-from ..common.data_type import OmniUniBotConfig, OmniUniBotPlatform, OmniUniBotChannelConfig, MsgType, Msg
-from ..common.constants import OMNI_ZMQ_TOPIC
 
 
 class OmniUniBotServer:
