@@ -1,8 +1,8 @@
-from enum import Enum, auto
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Optional, Dict
+from enum import Enum, auto
 from pathlib import Path
+from typing import Dict, Optional
 
 
 class OmniUniBotPlatform(Enum):
@@ -168,6 +168,7 @@ class OmniUniBotConfig(DictCompatibleADT):
 
 class MsgType(Enum):
     Text = auto()
+    Markdown = auto()
     Image = auto()
     Auto = auto()
 

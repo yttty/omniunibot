@@ -1,5 +1,6 @@
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
+
 from slack_sdk.webhook import WebhookResponse
 from slack_sdk.webhook.async_client import AsyncWebhookClient
 
@@ -37,34 +38,29 @@ class SlackBot(BaseBot):
         else:
             await self._on_success_response(msg_id)
 
-    def _generate_payload(self, msg_type: MsgType, text: Optional[str], **kwargs) -> Dict:
-        payload = {
-            "channel": " ",
-            "blocks": [
-                {
-                    "type": "section",
-                    "text": {
-                        "type": "mrkdwn",
-                        "text": text,
-                    },
+    def _generate_payload(self, msg_type: MsgType, text: str = "", markdown: str = " ", **kwargs) -> Dict:
+        match msg_type:
+            case MsgType.Text:
+                return {
+                    "text": text,
                 }
-            ],
-            "attachments": [
-                {
+            case MsgType.Markdown:
+                return {
                     "blocks": [
                         {
                             "type": "section",
                             "text": {
                                 "type": "mrkdwn",
-                                "text": " ",
+                                "text": markdown,
                             },
-                        }
-                    ]
+                        },
+                    ],
                 }
-            ],
-        }
-        return payload
+            case _:
+                raise NotImplementedError
 
     async def _send_text(self, text: str, **kwargs) -> WebhookResponse:
-        rsp = await self._slack_client.send_dict(self._generate_payload(msg_type=MsgType.Text, text=text))
-        return rsp
+        return await self._slack_client.send_dict(self._generate_payload(msg_type=MsgType.Text, text=text))
+
+    async def _send_markdown(self, msg_md: str, **kwargs) -> WebhookResponse:
+        return await self._slack_client.send_dict(self._generate_payload(msg_type=MsgType.Markdown, markdown=msg_md))
