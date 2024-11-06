@@ -11,7 +11,7 @@ def parse_args():
         description="Start a omniunibot server.",
         epilog="Doc: https://github.com/yttty/omniunibot",
     )
-    parser.add_argument("--config", dest="config", help="Path of config file")
+    parser.add_argument("-c", "--config", dest="config", help="Path of config file")
     return parser.parse_args()
 
 

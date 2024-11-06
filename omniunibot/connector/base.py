@@ -53,7 +53,13 @@ class BaseBot(ABC):
                 except Exception as e:
                     logger.error("{} in dealing with error response! Msg={}", e.__class__.__name__, str(e))
 
-    async def send(self, msg_content: Dict[str, Any], msg_type: MsgType | str = "Auto", **kwargs):
+    async def send(
+        self,
+        msg_content: Dict[str, Any],
+        msg_type: MsgType | str = "Auto",
+        mention_all: bool = False,
+        **kwargs,
+    ):
         try:
             msg_id: str = str(uuid.uuid4().hex)
 
@@ -78,22 +84,22 @@ class BaseBot(ABC):
                     msg_text := msg_content.get("text", None)
                 ), "`text` is required in `msg_content` when `msg_type` == MsgType.Text"
                 if self._debug:
-                    logger.debug(f"Receive text message: {msg_text}")
-                rsp = await self._send_text(msg_text)
+                    logger.debug(f"Receive text message: {msg_text} / mention_all={mention_all}")
+                rsp = await self._send_text(msg_text, mention_all)
             elif msg_type == MsgType.Markdown:
                 assert (
                     msg_md := msg_content.get("markdown", None)
                 ), "`markdown` is required in `msg_content` when `msg_type` == MsgType.Markdown"
                 if self._debug:
-                    logger.debug(f"Receive markdown message: {msg_md}")
-                rsp = await self._send_markdown(msg_md)
+                    logger.debug(f"Receive markdown message: {msg_md} / mention_all={mention_all}")
+                rsp = await self._send_markdown(msg_md, mention_all)
             elif msg_type == MsgType.Image:
                 assert (
                     img_path := msg_content.get("img_path", None)
                 ), "`img_path` is required in `msg_content` when `msg_type` == MsgType.Image"
                 if self._debug:
-                    logger.debug(f"Receive img message: {img_path}")
-                rsp = await self._send_image(img_path)
+                    logger.debug(f"Receive img message: {img_path} / mention_all={mention_all}")
+                rsp = await self._send_image(img_path, mention_all)
             else:
                 raise NotImplementedError
 
@@ -109,11 +115,11 @@ class BaseBot(ABC):
         pass
 
     @abstractmethod
-    async def _send_text(self, msg_text: str) -> Any | None:
+    async def _send_text(self, msg_text: str, mention_all: bool) -> Any | None:
         pass
 
-    async def _send_markdown(self, msg_md: str) -> Any | None:
+    async def _send_markdown(self, msg_md: str, mention_all: bool) -> Any | None:
         raise NotImplementedError
 
-    async def _send_image(self, img_path: str | Path) -> Any | None:
+    async def _send_image(self, img_path: str | Path, mention_all: bool) -> Any | None:
         raise NotImplementedError

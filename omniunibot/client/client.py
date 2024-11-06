@@ -61,6 +61,7 @@ class OmniUniBotClient:
         channel_group: str,
         msg_content: Dict[str, Any],
         msg_type: Union[str, MsgType],
+        mention_all: bool,
     ) -> Optional[Msg]:
         """Validate and format message
 
@@ -78,6 +79,7 @@ class OmniUniBotClient:
                     "channel_group": channel_group,
                     "msg_content": msg_content,
                     "msg_type": msg_type.name,
+                    "mention_all": mention_all,
                 }
             )
         else:
@@ -89,6 +91,7 @@ class OmniUniBotClient:
         channel_group: str,
         msg_content: Dict[str, Any],
         msg_type: MsgType | str = "Auto",
+        mention_all: bool = False,
     ):
         """Send message to OmniUniBotServer
 
@@ -98,7 +101,7 @@ class OmniUniBotClient:
             msg_content (dict): ...
             msg_type (str): Type of the message. Defaults to 'Text'.
         """
-        msg = self._fmt_msg(channel_group, msg_content, msg_type)
+        msg = self._fmt_msg(channel_group, msg_content, msg_type, mention_all)
         if msg is not None:
             info = json.dumps(msg.to_dict()).encode("utf-8")
             self._socket.send_multipart([OMNI_ZMQ_TOPIC, info])
@@ -110,6 +113,7 @@ class OmniUniBotClient:
         channel_group: str,
         msg_content: Dict[str, Any],
         msg_type: MsgType | str = "Auto",
+        mention_all: bool = False,
     ):
         """Async send message to OmniUniBotServer
 
@@ -119,7 +123,7 @@ class OmniUniBotClient:
             msg_content (dict): ...
             msg_type (str): Type of the message. Defaults to 'Text'.
         """
-        msg = self._fmt_msg(channel_group, msg_content, msg_type)
+        msg = self._fmt_msg(channel_group, msg_content, msg_type, mention_all)
         if msg is not None:
             info = json.dumps(msg.to_dict()).encode("utf-8")
             await self._socket.send_multipart([OMNI_ZMQ_TOPIC, info])

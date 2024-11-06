@@ -38,11 +38,18 @@ class SlackBot(BaseBot):
         else:
             await self._on_success_response(msg_id)
 
-    def _generate_payload(self, msg_type: MsgType, text: str = "", markdown: str = " ", **kwargs) -> Dict:
+    def _generate_payload(
+        self,
+        msg_type: MsgType,
+        text: str = "",
+        markdown: str = " ",
+        mention_all: bool = False,
+        **kwargs,
+    ) -> Dict:
         match msg_type:
             case MsgType.Text:
                 return {
-                    "text": text,
+                    "text": text + ("\n<!channel>" if mention_all else ""),
                 }
             case MsgType.Markdown:
                 return {
@@ -51,7 +58,7 @@ class SlackBot(BaseBot):
                             "type": "section",
                             "text": {
                                 "type": "mrkdwn",
-                                "text": markdown,
+                                "text": markdown + ("\n<!channel>" if mention_all else ""),
                             },
                         },
                     ],
@@ -59,8 +66,12 @@ class SlackBot(BaseBot):
             case _:
                 raise NotImplementedError
 
-    async def _send_text(self, text: str, **kwargs) -> WebhookResponse:
-        return await self._slack_client.send_dict(self._generate_payload(msg_type=MsgType.Text, text=text))
+    async def _send_text(self, text: str, mention_all: bool, **kwargs) -> WebhookResponse:
+        return await self._slack_client.send_dict(
+            self._generate_payload(msg_type=MsgType.Text, text=text, mention_all=mention_all)
+        )
 
-    async def _send_markdown(self, msg_md: str, **kwargs) -> WebhookResponse:
-        return await self._slack_client.send_dict(self._generate_payload(msg_type=MsgType.Markdown, markdown=msg_md))
+    async def _send_markdown(self, msg_md: str, mention_all: bool, **kwargs) -> WebhookResponse:
+        return await self._slack_client.send_dict(
+            self._generate_payload(msg_type=MsgType.Markdown, markdown=msg_md, mention_all=mention_all)
+        )
