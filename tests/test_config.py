@@ -29,7 +29,7 @@ def test_config_1():
         },
         "log": {
             "level": "DEBUG",
-            "dir": "/home/timyang/logs/omniunibot",
+            "dir": "/home/ubuntu/logs/omniunibot",
         },
         "channel_groups": {
             "test_channels": [

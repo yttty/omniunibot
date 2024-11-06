@@ -63,11 +63,11 @@ class DingTalkBot(BaseBot):
             payload["at"]["atMobiles"] = atMobiles
         return payload
 
-    async def _send_text(self, text: str, **kwargs) -> dict:
+    async def _send_text(self, text: str, mention_all: bool, **kwargs) -> dict:
         async with aiohttp.ClientSession() as session:
             async with session.request(
                 "POST",
                 url=self._get_signed_url(),
-                json=self._generate_payload(msg_type=MsgType.Text, text=text, **kwargs),
+                json=self._generate_payload(msg_type=MsgType.Text, text=text, atAll=mention_all, **kwargs),
             ) as rsp:
                 return await rsp.json()

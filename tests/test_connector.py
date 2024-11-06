@@ -12,7 +12,7 @@ async def test_dingtalkbot_1():
         on_success="log",
         on_failure="trace",
     )
-    await bot.send({"text": "`test_dingtalkbot_1` Pass"})
+    await bot.send({"text": "`test_dingtalkbot_1` Pass"}, mention_all=True)
 
 
 @pytest.mark.asyncio
@@ -23,7 +23,7 @@ async def test_larkbot_1():
         on_success="log",
         on_failure="trace",
     )
-    await bot.send({"text": "`test_larkbot_1` Pass"})
+    await bot.send({"text": "`test_larkbot_1` Pass"}, mention_all=True)
 
 
 @pytest.mark.asyncio
@@ -33,4 +33,4 @@ async def test_slackbot_1():
         on_success="log",
         on_failure="trace",
     )
-    await bot.send({"text": "`test_slackbot_1` Pass"})
+    await bot.send({"text": "`test_slackbot_1` Pass"}, mention_all=True)

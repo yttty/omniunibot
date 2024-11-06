@@ -178,12 +178,14 @@ class Msg(DictCompatibleADT):
     channel_group: str
     msg_type: MsgType
     msg_content: dict
+    mention_all: bool
 
     def to_dict(self) -> dict:
         return {
             "channel_group": self.channel_group,
             "msg_type": self.msg_type.name,
             "msg_content": self.msg_content,
+            "mention_all": self.mention_all,
         }
 
     @classmethod
@@ -192,4 +194,5 @@ class Msg(DictCompatibleADT):
             d["channel_group"],
             MsgType[d["msg_type"]],
             d["msg_content"],
+            d["mention_all"],
         )

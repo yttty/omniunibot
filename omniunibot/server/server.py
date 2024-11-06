@@ -43,7 +43,7 @@ class OmniUniBotServer:
         self._init_logger()
         logger.debug(f"Config: {self._config.to_dict()}")
         self._init_bots()
-        self._msg_queue:Deque[Msg] = deque()
+        self._msg_queue: Deque[Msg] = deque()
 
         # Initialize ZMQ
         self._addr = self._config.server.bind
@@ -93,6 +93,7 @@ class OmniUniBotServer:
         channel_group_name: str,
         msg_content: Dict[str, Any],
         msg_type: MsgType,
+        mention_all: bool,
     ):
         """_summary_
 
@@ -101,7 +102,7 @@ class OmniUniBotServer:
             msg_type (MsgType): _description_
         """
         for bot in self._bots[channel_group_name]:
-            asyncio.create_task(bot.send(msg_content=msg_content, msg_type=msg_type))
+            asyncio.create_task(bot.send(msg_content=msg_content, msg_type=msg_type, mention_all=mention_all))
 
     async def _pull_zmq(self):
         self._socket.bind(self._addr)
@@ -113,7 +114,9 @@ class OmniUniBotServer:
                     part: dict = json.loads(mtPart[1].decode("utf-8"))
                     msg = Msg.from_dict(part)
                     if msg.channel_group not in self._bots.keys():
-                        logger.warning(f"Ignore msg because of no such channel. Channel={msg.channel_group} Msg={msg.to_dict()}")
+                        logger.warning(
+                            f"Ignore msg because of no such channel. Channel={msg.channel_group} Msg={msg.to_dict()}"
+                        )
                     else:
                         self._msg_queue.append(msg)
             except Exception as e:
@@ -130,6 +133,7 @@ class OmniUniBotServer:
                             channel_group_name=msg.channel_group,
                             msg_content=msg.msg_content,
                             msg_type=msg.msg_type,
+                            mention_all=msg.mention_all,
                         )
                     )
             except Exception as e:

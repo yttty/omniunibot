@@ -54,7 +54,13 @@ class LarkBot(BaseBot):
         else:
             await self._on_success_response(msg_id)
 
-    def _generate_payload(self, msg_type: MsgType, text: str | None = None, title: str | None = None, **kwargs):
+    def _generate_payload(
+        self,
+        msg_type: MsgType,
+        text: str | None = None,
+        mention_all: bool = False,
+        **kwargs,
+    ):
         """Generate payload to send, using message type `post`, see the document for details
 
         Args:
@@ -63,9 +69,18 @@ class LarkBot(BaseBot):
             at_uid (Optional[List[str]], optional): uids to at. Defaults to None.
         """
         timestamp, sign = self._sign()
-        post_zh_cn = {"content": [[{"tag": "text", "text": text}]]}
-        if title is not None:
-            post_zh_cn["title"] = title
+        post_zh_cn = {
+            "content": [
+                [
+                    {
+                        "tag": "text",
+                        "text": text + ("\n" if mention_all else ""),
+                    },
+                ]
+            ]
+        }
+        if mention_all:
+            post_zh_cn["content"][0].append({"tag": "at", "user_id": "all"})
         payload = {
             "timestamp": timestamp,
             "sign": sign,
@@ -74,9 +89,11 @@ class LarkBot(BaseBot):
         }
         return payload
 
-    async def _send_text(self, text: str, **kwargs) -> dict:
+    async def _send_text(self, text: str, mention_all: bool, **kwargs) -> dict:
         async with aiohttp.ClientSession() as session:
             async with session.request(
-                "POST", url=self._webhook, json=self._generate_payload(msg_type=MsgType.Text, text=text, **kwargs)
+                "POST",
+                url=self._webhook,
+                json=self._generate_payload(msg_type=MsgType.Text, text=text, mention_all=mention_all, **kwargs),
             ) as rsp:
                 return await rsp.json()
