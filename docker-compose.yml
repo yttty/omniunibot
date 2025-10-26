@@ -1,7 +1,7 @@
 services:
   upush:
     build: .
-    image: omniunibot:latest
+    image: yttty/omniunibot:latest
     container_name: omniunibot
     ports:
       - 9999:9999
