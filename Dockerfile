@@ -8,4 +8,4 @@ COPY ./README.md /src
 RUN pip install --no-cache-dir /src && rm -r /src
 
 WORKDIR /app
-ENTRYPOINT ["gunicorn", "omniunibot:app", "--bind", "0.0.0.0:9999", "--worker-class", "aiohttp.GunicornWebWorker"]
+ENTRYPOINT ["gunicorn", "omniunibot.api:app", "--bind", "0.0.0.0:9999", "--worker-class", "aiohttp.GunicornWebWorker"]

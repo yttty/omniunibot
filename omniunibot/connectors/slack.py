@@ -24,7 +24,7 @@ class SlackBot(BaseBot):
         self._webhook = webhook
         self._slack_client = AsyncWebhookClient(self._webhook, **slack_webhoot_client_kwargs)
 
-    async def _is_success_response(self, rsp: WebhookResponse | Any) -> bool:
+    async def _is_success_response(self, rsp: dict[str, Any]) -> bool:
         """_summary_
 
         Args:
@@ -32,7 +32,7 @@ class SlackBot(BaseBot):
             rsp (WebhookResponse): https://slack.dev/python-slack-sdk/api-docs/slack_sdk/webhook/webhook_response.html
         """
 
-        return getattr(rsp, "status_code", None) == 200
+        return rsp.get("status_code", None) == 200
 
     def _generate_payload(
         self,
