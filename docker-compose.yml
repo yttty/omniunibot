@@ -1,0 +1,10 @@
+services:
+  upush:
+    build: .
+    image: omniunibot:latest
+    container_name: omniunibot
+    ports:
+      - 9999:9999
+    volumes:
+      - ${OMNI_CONFIG}:/app/omni_config.json:ro
+    restart: unless-stopped

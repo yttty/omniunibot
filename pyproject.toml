@@ -1,26 +1,30 @@
-[tool.poetry]
+[project]
 name = "omniunibot"
-version = "0.5.0"
-description = "A universal multiplatform message bot"
-authors = ["yttty <yttty@noreply.com>"]
-license = "MIT"
+version = "0.6.0"
+description = "Universal Push Service"
+authors = [
+    {name = "yttty",email = "yttty@users.noreply.github.com"}
+]
+license = {text = "MIT"}
 readme = "README.md"
+requires-python = ">=3.12,<4.0"
+dependencies = [
+    "aiohttp (>=3.13.1,<4.0.0)",
+    "gunicorn (>=23.0.0,<24.0.0)",
+    "slack-sdk (>=3.37.0,<4.0.0)"
+]
+
+[project.urls]
 homepage = "https://github.com/yttty/omniunibot"
 repository = "https://github.com/yttty/omniunibot"
-include = ["LICENSE"]
 
-[tool.poetry.dependencies]
-python = "^3.12"
-loguru = ">=0.6, <0.8"
-slack-sdk = ">=3.21"
-aiohttp = "^3.9"
-pyzmq = "^26.0"
-
-[tool.poetry.group.dev.dependencies]
-pytest = ">=8.2"
-pytest-asyncio = ">=0.23"
-black = ">=24.4"
+[dependency-groups]
+dev = [
+    "pytest (>=8.4.2,<9.0.0)",
+    "mypy (>=1.18.2,<2.0.0)",
+    "pytest-asyncio (>=1.2.0,<2.0.0)"
+]
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
