@@ -1,0 +1,21 @@
+{
+    "channel_groups": {
+        "test_channels": [
+            {
+                "platform": "Slack",
+                "webhook": "https://hooks.slack.com/services/xxxx/xxxx/xxxx"
+            },
+            {
+                "platform": "Lark",
+                "webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/1a166e72-xxxx-xxxx-xxxx-3ae4f0fb51b7",
+                "secret": "xxx"
+            },
+            {
+                "platform": "DingTalk",
+                "webhook": "https://oapi.dingtalk.com/robot/send?access_token=xxx",
+                "secret": "xxx"
+            }
+        ]
+    },
+    "debug": true
+}

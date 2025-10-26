@@ -3,12 +3,10 @@ import hashlib
 import hmac
 import time
 import urllib.parse
-from pathlib import Path
-from typing import List
+from typing import Any, List
 
 import aiohttp
 
-from ..common.data_type import MsgType
 from .base import BaseBot
 
 
@@ -35,39 +33,30 @@ class DingTalkBot(BaseBot):
         signed_url = self._webhook + "&timestamp=" + str(timestamp) + "&sign=" + sign
         return signed_url
 
-    async def _on_response(self, msg_id: str, rsp: dict) -> None:
-        """_summary_
-
-        Args:
-            msg_id (str): _description_
-            rsp (dict): _description_
-        """
-        if rsp["errcode"] == 0:
-            await self._on_success_response(msg_id)
-        else:
-            await self._on_error_response(msg_id, rsp)
+    async def _is_success_response(self, rsp: dict[str, Any]) -> bool:
+        return rsp.get("errcode", None) == 0
 
     def _generate_payload(
         self,
-        msg_type: MsgType,
         text: str | None = None,
-        atMobiles: List[str] | None = None,
-        atAll: bool = False,
+        at_mobiles: List[str] = [],
+        at_all: bool = False,
     ):
         payload = {
             "msgtype": "text",
             "text": {"content": text},
-            "at": {"isAtAll": atAll},
         }
-        if atMobiles is not None:
-            payload["at"]["atMobiles"] = atMobiles
+        if at_all:
+            payload["at"] = {"isAtAll": at_all}
+        elif at_mobiles:
+            payload["at"] = {"atMobiles": at_mobiles}
         return payload
 
-    async def _send_text(self, text: str, mention_all: bool, **kwargs) -> dict:
+    async def _send_text(self, text: str, mention_all: bool) -> dict[str, Any]:
         async with aiohttp.ClientSession() as session:
             async with session.request(
                 "POST",
                 url=self._get_signed_url(),
-                json=self._generate_payload(msg_type=MsgType.Text, text=text, atAll=mention_all, **kwargs),
+                json=self._generate_payload(text=text, at_all=mention_all),
             ) as rsp:
                 return await rsp.json()

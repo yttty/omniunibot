@@ -2,11 +2,10 @@ import base64
 import hashlib
 import hmac
 import time
-from pathlib import Path
+from typing import Any
 
 import aiohttp
 
-from ..common.data_type import MsgType
 from .base import BaseBot
 
 
@@ -38,28 +37,16 @@ class LarkBot(BaseBot):
         timestamp = str(round(time.time()))
         string_to_sign = "{}\n{}".format(timestamp, self._secret)
         hmac_code = hmac.new(string_to_sign.encode("utf-8"), digestmod=hashlib.sha256).digest()
-        # b64 encoding
         sign = base64.b64encode(hmac_code).decode("utf-8")
         return timestamp, sign
 
-    async def _on_response(self, msg_id: str, rsp: dict | None) -> None:
-        """_summary_
-
-        Args:
-            msg_id (str): _description_
-            rsp (dict): _description_
-        """
-        if rsp.get("code", None) != 0:
-            await self._on_error_response(msg_id, rsp)
-        else:
-            await self._on_success_response(msg_id)
+    async def _is_success_response(self, rsp: dict[str, Any]) -> bool:
+        return rsp.get("code", None) == 0
 
     def _generate_payload(
         self,
-        msg_type: MsgType,
         text: str | None = None,
         mention_all: bool = False,
-        **kwargs,
     ):
         """Generate payload to send, using message type `post`, see the document for details
 
@@ -74,7 +61,7 @@ class LarkBot(BaseBot):
                 [
                     {
                         "tag": "text",
-                        "text": text + ("\n" if mention_all else ""),
+                        "text": ("" if text is None else text) + ("\n" if mention_all else ""),
                     },
                 ]
             ]
@@ -89,11 +76,11 @@ class LarkBot(BaseBot):
         }
         return payload
 
-    async def _send_text(self, text: str, mention_all: bool, **kwargs) -> dict:
+    async def _send_text(self, text: str, mention_all: bool) -> dict[str, Any]:
         async with aiohttp.ClientSession() as session:
             async with session.request(
                 "POST",
                 url=self._webhook,
-                json=self._generate_payload(msg_type=MsgType.Text, text=text, mention_all=mention_all, **kwargs),
+                json=self._generate_payload(text=text, mention_all=mention_all),
             ) as rsp:
                 return await rsp.json()

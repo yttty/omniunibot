@@ -1,7 +1,5 @@
 # omniunibot
 
-<!-- [![Upload Python Package](https://github.com/yttty/omniunibot/actions/workflows/python-publish.yml/badge.svg)](https://github.com/yttty/omniunibot/actions/workflows/python-publish.yml) -->
-
 > ⚠️ **For `omniunibot>=0.3.0`, omniunibot will only support `Python>=3.12`.** Please use `omniunibot==0.2.0` for `Python<3.12`.
 
 ### 🤖 An omnipotent universal message bot library for python
@@ -17,7 +15,6 @@
 ### 💻 Installation
 
 - *(via pip)* `pip install -U omniunibot`
-- *(via source)* clone this repo && `pip install .`
 
 ### 📜 Client-Server Mode
 

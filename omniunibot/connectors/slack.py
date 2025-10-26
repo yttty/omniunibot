@@ -1,11 +1,9 @@
-from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from slack_sdk.webhook import WebhookResponse
 from slack_sdk.webhook.async_client import AsyncWebhookClient
 
-from ..common.data_type import MsgType
-from .base import BaseBot
+from .base import BaseBot, MsgType
 
 
 class SlackBot(BaseBot):
@@ -26,25 +24,22 @@ class SlackBot(BaseBot):
         self._webhook = webhook
         self._slack_client = AsyncWebhookClient(self._webhook, **slack_webhoot_client_kwargs)
 
-    async def _on_response(self, msg_id: str, rsp: WebhookResponse) -> None:
+    async def _is_success_response(self, rsp: WebhookResponse | Any) -> bool:
         """_summary_
 
         Args:
             msg_id (str): _description_
             rsp (WebhookResponse): https://slack.dev/python-slack-sdk/api-docs/slack_sdk/webhook/webhook_response.html
         """
-        if rsp.status_code != 200:
-            await self._on_error_response(msg_id, {"code": rsp.status_code, "err_msg": rsp.body})
-        else:
-            await self._on_success_response(msg_id)
+
+        return getattr(rsp, "status_code", None) == 200
 
     def _generate_payload(
         self,
         msg_type: MsgType,
         text: str = "",
-        markdown: str = " ",
+        markdown: str = "",
         mention_all: bool = False,
-        **kwargs,
     ) -> Dict:
         match msg_type:
             case MsgType.Text:
@@ -66,12 +61,14 @@ class SlackBot(BaseBot):
             case _:
                 raise NotImplementedError
 
-    async def _send_text(self, text: str, mention_all: bool, **kwargs) -> WebhookResponse:
-        return await self._slack_client.send_dict(
+    async def _send_text(self, text: str, mention_all: bool) -> dict[str, Any]:
+        webhook_response = await self._slack_client.send_dict(
             self._generate_payload(msg_type=MsgType.Text, text=text, mention_all=mention_all)
         )
+        return {"status_code": webhook_response.status_code, "body": webhook_response.body}
 
-    async def _send_markdown(self, msg_md: str, mention_all: bool, **kwargs) -> WebhookResponse:
-        return await self._slack_client.send_dict(
+    async def _send_markdown(self, msg_md: str, mention_all: bool) -> dict[str, Any]:
+        webhook_response = await self._slack_client.send_dict(
             self._generate_payload(msg_type=MsgType.Markdown, markdown=msg_md, mention_all=mention_all)
         )
+        return {"status_code": webhook_response.status_code, "body": webhook_response.body}
